@@ -22,23 +22,19 @@ export interface FetchNotesResponse {
     totalPages: number;
 }
 
-export const fetchNotes = async ({ page = 1, search = '', perPage = 12 }: FetchNotesParams): Promise<FetchNotesResponse> => {
-    const response = await instance.get('', {
+export const fetchNotes = async ({ page = 1, search = '', perPage = 12 }: FetchNotesParams) => {
+    const response = await instance.get<FetchNotesResponse>('', {
         params: { page, search, perPage },
     });
     return response.data;
 };
 
-export const createNote = async (note: {
-    title: string;
-    content: string;
-    tag: NoteTag;
-}): Promise<Note> => {
-    const response = await instance.post('', note);
+export const createNote = async (note: { title: string; content: string; tag: NoteTag }) => {
+    const response = await instance.post<Note>('', note);
     return response.data;
 };
 
-export const deleteNote = async (id: string): Promise<Note> => {
-    const response = await instance.delete(`/${id}`);
+export const deleteNote = async (id: number) => {
+    const response = await instance.delete<Note>(`/${id}`);
     return response.data;
 };

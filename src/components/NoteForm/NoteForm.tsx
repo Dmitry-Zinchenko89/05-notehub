@@ -1,22 +1,21 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import type { NoteTag } from '../../types/note';
 import * as Yup from 'yup';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createNote } from '../../services/noteService';
+import type { NoteTag } from '../../types/note';
 
-const schema = Yup.object().shape({
-  title: Yup.string().min(3).max(50).required(),
-  content: Yup.string().max(500),
-  tag: Yup.mixed<NoteTag>().oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping']).required(),
-});
-
-interface Props {
+interface NoteFormProps {
   onClose: () => void;
 }
 
-const NoteForm = ({ onClose }: Props) => {
-  const queryClient = useQueryClient();
+const validationSchema = Yup.object({
+  title: Yup.string().required(),
+  content: Yup.string().required(),
+  tag: Yup.string().oneOf(['work', 'personal', 'important']).required(),
+});
 
+export const NoteForm = ({ onClose }: NoteFormProps) => {
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
@@ -27,41 +26,30 @@ const NoteForm = ({ onClose }: Props) => {
 
   return (
     <Formik
-      initialValues={{ title: '', content: '', tag: 'Todo' as NoteTag }}
-      validationSchema={schema}
-      onSubmit={(values) => mutation.mutate(values)}
+      initialValues={{ title: '', content: '', tag: 'personal' as NoteTag }}
+      validationSchema={validationSchema}
+      onSubmit={values => mutation.mutate(values)}
     >
-      {({ isSubmitting }) => (
-        <Form>
-          <div>
-            <label htmlFor="title">Title</label>
-            <Field name="title" type="text" />
-            <ErrorMessage name="title" component="span" />
-          </div>
-          <div>
-            <label htmlFor="content">Content</label>
-            <Field as="textarea" name="content" rows={8} />
-            <ErrorMessage name="content" component="span" />
-          </div>
-          <div>
-            <label htmlFor="tag">Tag</label>
-            <Field as="select" name="tag">
-              <option value="Todo">Todo</option>
-              <option value="Work">Work</option>
-              <option value="Personal">Personal</option>
-              <option value="Meeting">Meeting</option>
-              <option value="Shopping">Shopping</option>
-            </Field>
-            <ErrorMessage name="tag" component="span" />
-          </div>
-          <div>
-            <button type="button" onClick={onClose}>Cancel</button>
-            <button type="submit" disabled={isSubmitting}>Create note</button>
-          </div>
-        </Form>
-      )}
+      <Form>
+        <label>Title</label>
+        <Field name="title" />
+        <ErrorMessage name="title" />
+
+        <label>Content</label>
+        <Field name="content" />
+        <ErrorMessage name="content" />
+
+        <label>Tag</label>
+        <Field as="select" name="tag">
+          <option value="personal">Personal</option>
+          <option value="work">Work</option>
+          <option value="important">Important</option>
+        </Field>
+        <ErrorMessage name="tag" />
+
+        <button type="submit">Create</button>
+        <button type="button" onClick={onClose}>Cancel</button>
+      </Form>
     </Formik>
   );
 };
-
-export default NoteForm;
