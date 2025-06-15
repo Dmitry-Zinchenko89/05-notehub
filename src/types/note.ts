@@ -2,9 +2,5 @@ export interface Note {
     id: number;
     title: string;
     content: string;
-    tag: NoteTag;
-    createdAt?: string;
-    updatedAt?: string;
+    tag: "Work" | "Personal" | "Meeting" | "Shopping" | "Todo";
 }
-
-export type NoteTag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
